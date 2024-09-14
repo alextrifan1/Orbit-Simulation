@@ -1,5 +1,6 @@
 import itertools
 import math
+import time
 import turtle
 
 class Solar_system_body(turtle.Turtle):
@@ -44,6 +45,11 @@ class Solar_system:
 
         self.bodies = []
 
+        self.fps_display = turtle.Turtle()
+        self.fps_display.hideturtle()
+        self.fps_display.penup()
+        self.fps_display.color("white")
+
     def add_body(self, body):
         self.bodies.append(body)
 
@@ -52,15 +58,30 @@ class Solar_system:
         self.bodies.remove(body)
 
     def update_all(self):
+        start_time = time.time()
+
         for body in self.bodies:
             body.move()
             body.draw()
+
         self.solar_system.update()
+
+        end_time = time.time()
+        frame_time = end_time - start_time
+        fps = 1/frame_time if frame_time > 0 else 0
+
+        self.display_fps(fps)
+
+    def display_fps(self, fps):
+        self.fps_display.clear()
+        self.fps_display.goto(-self.solar_system.window_width() // 2 + 50, self.solar_system.window_height() // 2 - 50)
+        self.fps_display.write(f"FPS: {fps:.2f}", font=("Arial", 16, "normal"))
 
     @staticmethod
     def accelerate_due_to_gravity(
             first: Solar_system_body,
             second: Solar_system_body,
+            time_step=0.01,
     ):
         distance = max(first.distance(second), 1)  # Prevent division by zero
         force = first.mass * second.mass / distance ** 2
@@ -70,7 +91,10 @@ class Solar_system:
             acceleration = force/body.mass
             acc_x = acceleration * math.cos(math.radians(angle))
             acc_y = acceleration * math.sin(math.radians(angle))
-            body.velocity = (body.velocity[0] + (reverse * acc_x), body.velocity[1] + (reverse * acc_y))
+            body.velocity = (
+                body.velocity[0] + (reverse * acc_x * time_step),
+                body.velocity[1] + (reverse * acc_y * time_step)
+            )
             reverse = -1
     def check_collision(self, first, second):
         if isinstance(first, Planet) and isinstance(second, Planet):

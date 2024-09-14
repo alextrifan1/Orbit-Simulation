@@ -24,15 +24,15 @@ planets = (
     ),
     Planet(
         solar_system,
-        mass=1,
-        position=(-300, 0),
-        velocity=(0.2, 0.4),
+        mass=2,
+        position=(-440, 0),
+        velocity=(0, 0.6),
     ),
     Planet(
         solar_system,
-        mass=1,
-        position=(-400, 0),
-        velocity=(0.2, 0.4),
+        mass=2.4,
+        position=(-300, 20),
+        velocity=(0, 0.6),
     ),
 )
 while True:

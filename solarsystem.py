@@ -13,18 +13,28 @@ class Solar_system_body(turtle.Turtle):
         self.velocity = velocity
         self.display_size = max(math.log(self.mass, self.display_log_base), self.min_display_size)
 
+        self.orbit_drawer = turtle.Turtle()
+        self.orbit_drawer.penup()  # Prevent drawing when setting position initially
+        self.orbit_drawer.setposition(position)
+        self.orbit_drawer.pendown()
+
         self.penup()
         self.hideturtle()
 
         solar_system.add_body(self)
 
     def draw(self):
-        self.clear()
+        self.clear()  # This clears the planet's old position, but leaves the trail
         self.dot(self.display_size)
 
     def move(self):
+        # Move the planet and its orbit drawer to its new position
         self.setx(self.xcor() + self.velocity[0])
         self.sety(self.ycor() + self.velocity[1])
+
+        # Move the orbit drawer turtle to draw the trail
+        self.orbit_drawer.setx(self.xcor())
+        self.orbit_drawer.sety(self.ycor())
 class Sun(Solar_system_body):
     def __init__(self, solar_system, mass, position = (0, 0), velocity = (0, 0)):
         super().__init__(solar_system, mass, position, velocity)
@@ -41,7 +51,7 @@ class Solar_system:
         self.solar_system = turtle.Screen()
         self.solar_system.tracer(0)
         self.solar_system.setup(width, height)
-        self.solar_system.bgcolor("black")
+        self.solar_system.bgcolor("grey")
 
         self.bodies = []
 
@@ -82,13 +92,14 @@ class Solar_system:
             first: Solar_system_body,
             second: Solar_system_body,
             time_step=0.01,
+            G=1  # Add a gravitational constant for scaling
     ):
         distance = max(first.distance(second), 1)  # Prevent division by zero
-        force = first.mass * second.mass / distance ** 2
+        force = (G * first.mass * second.mass) / (distance ** 2)  # Apply scaling
         angle = first.towards(second)
         reverse = 1
         for body in first, second:
-            acceleration = force/body.mass
+            acceleration = force / body.mass
             acc_x = acceleration * math.cos(math.radians(angle))
             acc_y = acceleration * math.sin(math.radians(angle))
             body.velocity = (
